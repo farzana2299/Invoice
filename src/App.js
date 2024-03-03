@@ -15,6 +15,7 @@ import UserProfile from './components/UserProfile';
 import Clients from './components/Clients';
 import EditClient from './components/EditClient';
 import Privacypolicy from './components/Privacypolicy';
+import FinalStep from './components/FinalStep';
 
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
         <Route path='/clients' element={<Clients></Clients>}></Route>
         <Route path='/editclient/:id' element={<EditClient></EditClient>}></Route>
         <Route path='/privacypolicy' element={<Privacypolicy></Privacypolicy>}></Route>
+        <Route path='/finalstep' element={<FinalStep></FinalStep>}></Route>
+        
+
       </Routes>
     </div>
   )

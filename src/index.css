@@ -156,11 +156,14 @@ color: white;
 }
 .ci{
   background-color: rgb(210, 215, 245);
+  width: 100%;
+  height: 100%;
+  
 }
 .ci2{
   width:100%;
-  height: 100px;
-  background-color: white;
+  height: 100%;
+  /* background-color: white; */
   /* border: 1px solid black; */
 }
 .ci3{
@@ -181,8 +184,9 @@ color: white;
 .fc2{
   width:100%;
   height: 110px;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   background-color: white;
+  border-radius: 10px;
 }
 .anc1{
   position: relative;
@@ -255,5 +259,26 @@ color: white;
 .pp1{
   width:100%;
   height: 100%;
+  background-color:rgb(210, 215, 245) ;
+}
+.cri1{
+  width:100%;
+  height: 100%;
+  border-radius: 8px;
+  background-color: white;
+}
+.cri2{
+  width:100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+}
+.fs1{
+  width:100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+}
+.fs2{
   background-color:rgb(210, 215, 245) ;
 }
