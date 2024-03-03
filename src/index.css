@@ -1,0 +1,259 @@
+
+.c1 {
+  width: 100%;
+  height: 645px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-image: url('https://i.postimg.cc/PJV4K90g/low-angle-shot-modern-business-building-touching-clear-sky-181624-9829.jpg');
+}
+.l{
+  background: rgba(241, 243, 255, 1);
+
+}
+.cl1{
+  height: 100%;
+  background-image: linear-gradient(166deg, #00073B 23.14%, #5971D2 94.98%),
+linear-gradient(0deg, #4D5DFA, #4D5DFA);
+border-radius: 0px 0px 50px 100px;
+}
+.cl2{
+  position:relative;
+  left:35%;
+width:25%;
+height: 50%;
+}
+.cl3{
+  position:relative;
+  left:15%;
+  width:75%;
+height: 50%;
+}
+.cl4{
+  width:15%;
+  height: 15%;
+  position:relative;
+  left: '120px';
+  bottom:'175px'; 
+ 
+}
+.cr1{
+  position:relative;
+  top:100px;
+  height: 200px;
+  background-image: linear-gradient(166deg, #00073B 23.14%, #5971D2 94.98%),
+linear-gradient(0deg, #4D5DFA, #4D5DFA);
+border-radius: 0px 0px 50px 100px;
+}
+.cr2{
+width:25%;
+height: 50%;
+}
+.cr3{
+  width:75%;
+height: 50%;
+}
+.he1{
+  width: 100%;
+  height: 100px;
+  background-image: linear-gradient(167.93deg, #131E5B 5.45%, #536AC8 95.52%); 
+}
+.he2{
+  width:100%;
+  height:100%;
+  position: relative;
+  right:25%;
+  /* bottom:30%; */
+}
+.he3{
+  position: relative;
+  top:10%;
+  color: white;
+  right:50%
+}
+.he4{
+  color: white;
+  position: relative;
+  /* bottom:50px;
+ left: 32%; */
+ font-size: 35px;
+}
+.he5{
+  position: relative;
+  /* bottom:100px;
+ left: 40%; */
+}
+.fo2{
+color: grey;
+}
+.fo2:hover{
+  color: blue;
+  position: relative;
+  right:50px;
+}
+.ho1{
+width:100%;
+height: 432px;
+}
+.ho2{
+  background-color: rgb(196, 203, 245);
+  width:100%;
+height: 432px;
+}
+.ho3{
+  position: relative;
+  top:25px;
+}
+.ho4{
+  font-size: 25px;
+}
+.ac1{
+  background-color: gba(135, 90, 193, 1)
+  rgba(104, 73, 180, 1);
+}
+.hrow{
+  position: relative;
+  left:70%;
+  bottom: 40%;
+}
+.lh1{
+  position: relative;
+  top: 30px;
+  color: white;
+  width:100%;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(to right, rgba(40, 20, 131, 1), rgba(143, 110, 213, 1), rgba(215, 130, 217, 1));
+}
+.lh2{
+  width:100%;
+  height: 120px;
+  background: linear-gradient(267.76deg, #875AC1 1.38%, #6849B4 100%);
+  border-radius: 10px;
+  position: relative;
+  top: 50px;
+  color: white;
+}
+.home2{
+ background: rgba(243, 242, 248, 1);
+  
+}
+.hro1{
+  position: relative;
+  bottom: 38px;
+}
+.lh3{
+  width:100%;
+  height: 150px;
+  position: relative;
+  top: 65px;
+  border: 0.5px solid grey;
+}
+.ci1{
+  width:100%;
+  height: 100px;
+ background: linear-gradient(167.93deg, #131E5B 5.45%, #536AC8 95.52%); 
+color: white;
+}
+.ci{
+  background-color: rgb(210, 215, 245);
+}
+.ci2{
+  width:100%;
+  height: 100px;
+  background-color: white;
+  /* border: 1px solid black; */
+}
+.ci3{
+  width:100%;
+  height: 425px;
+  /* border: 1px solid black; */
+  background-color: rgb(210, 215, 245);
+}
+.ci4{
+  position: relative;
+  top: 72%;
+}
+.fc1{
+  width:100%;
+  height: 80px;
+  
+}
+.fc2{
+  width:100%;
+  height: 110px;
+  border: 1px solid black;
+  background-color: white;
+}
+.anc1{
+  position: relative;
+  right: 40%;
+}
+.up1{
+  width:100%;
+  height:400px;
+  /* border:1px solid black; */
+  background-image: linear-gradient(166deg, #00073B 23.14%, #5971D2 94.98%),
+  linear-gradient(0deg, #4D5DFA, #4D5DFA);
+}
+.up2{
+  width:100%;
+  height:400px;
+  /* border:1px solid black; */
+  position: relative;
+  bottom:250px;
+  background-color: white;
+}
+.up3{
+  position: relative;
+  bottom:720px;
+}
+.up4{
+  position: relative;
+  top:20%;
+}
+.upl{
+  position: relative;
+  right:38%;
+}
+.cli1{
+  width:100%;
+  height: 100%;
+  background-color: rgb(210, 215, 245);
+}
+.cli2{
+  width:100%;
+  height: 100%;
+   border:1px solid black;
+   background-color: white;
+}
+.cli3{
+  position: relative;
+  right:80%;
+  top:25%;
+}
+.ecli{
+  width:100%;
+  height: 100%;
+  background-color: rgb(210, 215, 245);
+}
+.sb1{
+  width:100%;
+  height: 50px;
+  border-radius: 8px;
+ 
+
+}
+.sb1:hover{
+  background-color: #4D5DFA;
+  color: white;
+}
+.sb2{
+  position: relative;
+  left:10%;
+  top:13%;
+}
+.pp1{
+  width:100%;
+  height: 100%;
+  background-color:rgb(210, 215, 245) ;
+}
