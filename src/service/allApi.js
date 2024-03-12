@@ -29,3 +29,6 @@ export const getClientDetailApi = async (id,header) => {
 export const deleteClient=async(id,header)=>{
     return await commonApi('DELETE',`${BASE_URL}/invoices/client/${id}`,"",header)
   }
+  export const addItemApi = async (id,data, header) => {
+    return await commonApi('POST', `${BASE_URL}/item/add/${id}`, data, header)
+}

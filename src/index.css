@@ -282,3 +282,18 @@ color: white;
 .fs2{
   background-color:rgb(210, 215, 245) ;
 }
+.prev1{
+  width:100%;
+  height: 100%;
+  background-color:rgb(210, 215, 245) ;
+}
+.prev2{
+  width:100%;
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+}
+.prev3{
+  position: relative;
+  left: 45%;
+}

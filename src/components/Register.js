@@ -124,7 +124,8 @@ function Register() {
                             label="Username"
                             className="mt-5 mb-3"
                         >
-                            <Form.Control name='username' value={user.username} onChange={(e) => setDatas(e)} type="text" placeholder="Username" />
+                            <Form.Control name='username' value={user.username}
+                             onChange={(e) => setDatas(e)} type="text" placeholder="Username" />
                         </FloatingLabel>
                         {usernameValid &&
                                     <p className='text-danger'>Invalid User Name</p>

@@ -16,6 +16,7 @@ import Clients from './components/Clients';
 import EditClient from './components/EditClient';
 import Privacypolicy from './components/Privacypolicy';
 import FinalStep from './components/FinalStep';
+import Preview from './components/Preview';
 
 function App() {
   return (
@@ -30,13 +31,13 @@ function App() {
         <Route path='/createinvoice' element={<CreateInvoice></CreateInvoice>}></Route>
         <Route path='/findclient' element={<FindClient></FindClient>}></Route>
         <Route path='/addnewclient' element={<AddNewClient></AddNewClient>}></Route>
-        <Route path='/createinvoice2' element={<Create_Invoice2></Create_Invoice2>}></Route>
+        <Route path='/createinvoice2/:id' element={<Create_Invoice2></Create_Invoice2>}></Route>
         <Route path='/profile' element={<UserProfile></UserProfile>}></Route>
         <Route path='/clients' element={<Clients></Clients>}></Route>
         <Route path='/editclient/:id' element={<EditClient></EditClient>}></Route>
         <Route path='/privacypolicy' element={<Privacypolicy></Privacypolicy>}></Route>
-        <Route path='/finalstep' element={<FinalStep></FinalStep>}></Route>
-        
+        <Route path='/finalstep/:id' element={<FinalStep></FinalStep>}></Route>
+        <Route path='/preview/:id' element={<Preview></Preview>}></Route>
 
       </Routes>
     </div>

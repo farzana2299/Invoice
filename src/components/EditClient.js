@@ -184,9 +184,9 @@ function EditClient() {
                             <>
                                 <Form.Select name='country' value={clientDetails.country} onChange={(e) => setDatas(e)} aria-label="Default select example">
                                     <option>Country</option>
-                                    <option value="1">India</option>
-                                    <option value="2">China</option>
-                                    <option value="3">USA</option>
+                                    <option value="India">India</option>
+                                    <option value="China">China</option>
+                                    <option value="USA">USA</option>
                                 </Form.Select>
                             </>
                         </Col>

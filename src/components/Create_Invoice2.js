@@ -1,39 +1,258 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Form from 'react-bootstrap/Form';
-
-
+import { addItemApi, getClientDetailApi } from '../service/allApi';
+import Table from 'react-bootstrap/Table';
+import Modal from 'react-bootstrap/Modal';
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import { ToastContainer, toast } from 'react-toastify';
 function Create_Invoice2() {
-    const [inputFields, setInputFields] = useState([
-        {
-            orderId: '', itemNo: '', materialId: '', materialdescription: '', currentqty: '',
-            previousqty: '', qtydifference: '', ordercommand: ''
+
+    const [show, setShow] = useState(false);
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+    const [clientDetails, setClientDetails] = useState({})
+    const { id } = useParams()
+    const navigate = useNavigate()
+
+    const getUserDetails = async () => {
+        if (localStorage.getItem("token")) {
+            const token = localStorage.getItem("token");
+            const reqHeader = {
+                "access_token": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            };
+            try {
+                const result = await getClientDetailApi(id, reqHeader);
+                const clientDetailsData = result?.data.message;
+                setClientDetails(clientDetailsData);
+                setInvoiceData(prevState => ({
+                    ...prevState,
+                    clientDetails: clientDetailsData
+                }));
+            } catch (error) {
+                console.error("Error fetching client details:", error);
+            }
         }
-    ])
-    const handleFormChange = (index, event) => {
-        let data = [...inputFields];
-        data[index][event.target.name] = event.target.value;
-        setInputFields(data);
-    }
-    const addFields = () => {
-        let newfield = {
-            orderId: '', itemNo: '', materialId: '', materialdescription: '', currentqty: '',
-            previousqty: '', qtydifference: '', ordercommand: ''
+    };
+    useEffect(() => {
+        getUserDetails()
+
+    }, [])
+    // console.log(clientDetails);
+
+    const [invoiceData, setInvoiceData] = useState({
+        clientDetails: {},
+        currency: '',
+        items: [],
+        tot_subTotal: 0,
+        tot_tax: 0,
+        tot_discount: 0,
+        tot_total: 0,
+        invoiceNumber:0,
+        invoiceDate:"",
+        dueDate:'',
+        paymentStatus:'',
+        paymentMethod:''
+    });
+
+    const [items, setItems] = useState([]);
+
+    // Define initial state for each item
+    const initialState = {
+        itemName: '',
+        quantity: 0,
+        description: '',
+        unit: '',
+        unitPrice: 0,
+        taxPercentage: 0,
+        tax: 0,
+        discount: 0,
+        discountPercentage: 0,
+        subTotal: 0,
+        total: 0
+    };
+
+    // State for a single item
+    const [formData, setFormData] = useState(initialState);
+
+    const addItem = () => {
+        setItems([...items, formData]);
+        setInvoiceData(prevState => ({
+            ...prevState,
+            items: [...prevState.items, formData],
+            tot_subTotal: prevState.tot_subTotal + parseFloat(formData.subTotal),
+            tot_tax: prevState.tot_tax + parseFloat(formData.tax),
+            tot_discount: prevState.tot_discount + parseFloat(formData.discount),
+            tot_total: prevState.tot_total + parseFloat(formData.total)
+        }));
+        setFormData(initialState);
+    };
+    const [itemNameValid, setitemNameValid] = useState(false)
+    const [descriptionValid, setdescriptionValid] = useState(false)
+    const [quantityValid, setquantityValid] = useState(false)
+    const [unitPriceValid, setunitPriceValid] = useState(false)
+
+    const setDatas = (e) => {
+        const { name, value } = e.target;
+        if (name === 'itemName') {
+            if (value.match(/^[a-zA-Z .]+$/)) {
+                setitemNameValid(false)
+            } else {
+                setitemNameValid(true)
+            }
+        }
+        if (name === 'description') {
+            if (value.match(/^[a-zA-Z .]+$/)) {
+                setdescriptionValid(false)
+            } else {
+                setdescriptionValid(true)
+            }
         }
 
-        setInputFields([...inputFields, newfield])
+        if (name === 'quantity') {
+            if (value.match(/^[0-9 .]+$/)) {
+                setquantityValid(false)
+            } else {
+                setquantityValid(true)
+            }
+        }
+        if (name === 'unitPrice') {
+            if (value.match(/^[0-9 .]+$/)) {
+                setunitPriceValid(false)
+            } else {
+                setunitPriceValid(true)
+            }
+        }
+        if (name === 'currency') {
+            setInvoiceData(prevState => ({
+                ...prevState,
+                currency: value
+            }));
+        }
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+        setFormData(prevState => ({
+            ...prevState,
+            [name]: value,
+            subTotal: calculateSubTotal(prevState),
+            tax: calculateTax(prevState),
+            discount: calculateDiscount(prevState),
+            total: calculateTotal(prevState)
+        }));
+    };
+    // console.log(formData);
+    // console.log(invoiceData); 
+    const handleAdd = async (e) => {
+        e.preventDefault()
+
+        const { itemName, description, unit, quantity, unitPrice, taxPercentage, tax, discountPercentage,
+            discount, subTotal, total } = formData
+        console.log(formData);
+        if (!itemName || !description || unit === "" || quantity === "" || unitPrice === "" ||
+            taxPercentage === "" || discount === "" || tax === "" || discountPercentage === "" ||
+            subTotal === "" || total === "") {
+            toast.warn('Please fill all datas', {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+
+            });
+        }
+        else {
+            const token = localStorage.getItem("token")
+            const reqHeader = {
+                "access_token": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+            const reqBody = {
+                "itemName": itemName, "description": description, "unit": unit, "quantity": quantity,
+                "unitPrice": unitPrice, "taxPercentage": taxPercentage,
+                "tax": tax, "discountPercentage": discountPercentage,
+                "discount": discount, "subTotal": subTotal, "total": total
+            }
+            const result = await addItemApi(clientDetails._id, reqBody, reqHeader)
+            // console.log(result);
+            if (result.status >= 200 && result.status < 300) {
+                toast.success('Item Added Successfully', {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                });
+
+                setFormData({
+                    ...formData, itemName: "", description: "", unit: "",
+                    unitPrice: "", subTotal: "", discount: "", discountPercentage: "", tax: "",
+                    taxPercentage: "", total: ""
+
+                })
+                addItem();
+                handleClose();
+            }
+            else {
+                alert(result.response.data.message)
+            }
+        }
+
     }
-    const submit = (e) => {
-        e.preventDefault();
-        console.log(inputFields)
+
+
+    const calculateSubTotal = (formData) => {
+        return (parseFloat(formData.quantity) * parseFloat(formData.unitPrice)).toFixed(2);
     }
-    const removeFields = (index) => {
-        let data = [...inputFields];
-        data.splice(index, 1)
-        setInputFields(data)
+    
+    const calculateTax = (formData) => {
+        return (calculateSubTotal(formData) * (parseFloat(formData.taxPercentage) / 100)).toFixed(2);
     }
+    
+    const calculateDiscount = (formData) => {
+        return (calculateSubTotal(formData) * (parseFloat(formData.discountPercentage) / 100)).toFixed(2);
+    }
+    
+    const calculateTotal = (formData) => {
+        const subTotal = parseFloat(calculateSubTotal(formData));
+        const tax = parseFloat(calculateTax(formData));
+        const discount = parseFloat(calculateDiscount(formData));
+    
+        return (subTotal + tax - discount).toFixed(2);
+    }
+    
+
+
+    const handleNextStep = () => {
+        const { clientDetails, currency, items, tot_subTotal, tot_tax, tot_discount, tot_total } = invoiceData;
+        if (clientDetails && currency && items.length > 0 && tot_subTotal && tot_tax && tot_discount && tot_total) {
+            navigate(`/finalstep/${id}`, { state: { invoiceData } });
+        } else {
+            toast.error('Please fill all necessary details.', {
+                position: 'top-center',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: 'light'
+            });
+        }
+    };
+
+
     return (
         <div>
             <div className='ci'>
@@ -54,7 +273,7 @@ function Create_Invoice2() {
                 </div>
 
                 <div>
-                    <h2 className='pt-5' style={{ color: 'darkblue' }}>BILLING INFORMATION</h2>
+                    <h2 className='pt-5 text-center' style={{ color: 'darkblue' }}>BILLING INFORMATION</h2>
                 </div>
 
                 <div>
@@ -68,21 +287,25 @@ function Create_Invoice2() {
                     </Row>
                 </div>
                 <div className='m-5'>
+                    {clientDetails ? (
+                        <div className='fc2 mb-5'>
 
-                    <div className='fc2 mb-5'>
+                            <Row>
+                                <Col lg={3} md={3} sm={3} xs={3} style={{ position: 'relative', top: '20px', left: '5%' }}>
+                                    <img src="https://i.postimg.cc/wjnP3Lb5/download-removebg-preview-1.png" alt="icon" />
 
-                        <Row>
-                            <Col lg={3} md={3} sm={3} xs={3} style={{ position: 'relative', top: '20px', left: '5%' }}>
-                                <img src="https://i.postimg.cc/wjnP3Lb5/download-removebg-preview-1.png" alt="icon" />
+                                </Col>
+                                <Col lg={9} md={9} sm={9} xs={9} className='text-start' style={{ position: 'relative', top: '20px' }}>
+                                    <h5>{clientDetails.name}</h5>
+                                    <p>{clientDetails.email}</p>
 
-                            </Col>
-                            <Col lg={9} md={9} sm={9} xs={9} className='text-start' style={{ position: 'relative', top: '20px' }}>
-                                <h5>NAME</h5>
-                                <p>CITY, POSTCODE,COUNTRY</p>
-                            </Col>
-                        </Row>
+                                </Col>
+                            </Row>
 
-                    </div>
+                        </div>
+                    ) : (
+                        <p>Loading client details...</p>
+                    )}
                 </div>
 
                 {/* CURRENCY and add item  */}
@@ -90,162 +313,289 @@ function Create_Invoice2() {
                     <Row>
                         <Col lg={6} md={6} sm={12} xs={12}>
                             <>
-                                <Form.Select aria-label="Default select example">
+                                <Form.Select aria-label="Default select example" 
+                                value={invoiceData.currency} name='currency'
+                                    onChange={(e) => setDatas(e)}
+                                >
                                     <option>Currency</option>
-                                    <option value="1">India INR</option>
-                                    <option value="2">US Dollar</option>
-                                    <option value="3">Kuwait Dinar</option>
+                                    <option value="India INR">India INR</option>
+                                    <option value="US Dollar">US Dollar</option>
+                                    <option value="Kuwait Dinar">Kuwait Dinar</option>
                                 </Form.Select>
 
                             </>
                         </Col>
+
                         <Col lg={6} md={6} sm={12} xs={12}>
                             <div>
-                                <button onClick={addFields} className='btn btn-primary ba'>ADD ITEMS  <i class="fa-solid fa-circle-plus"></i></button>
+
+                                <Button variant="primary" size="lg" onClick={handleShow}>
+                                    Add Item
+                                </Button>
                             </div>
                         </Col>
                     </Row>
+                    <br />
+                    {/* table  */}
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>ITEM NAME</th>
+                                <th>ITEM DESCRIPTION</th>
+                                <th>QUANTITY</th>
+                                <th>UNIT</th>
+                                <th>PRICE</th>
+                                <th>SUBTOTAL</th>
+                                <th>DISCOUNT</th>
+                                <th>TAX </th>
+                                <th>TOTAL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {items.map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.itemName}</td>
+                                    <td>{item.description}</td>
+                                    <td>{item.quantity}</td>
+                                    <td>{item.unit}</td>
+                                    <td>{item.unitPrice}</td>
+                                    <td>{item.subTotal}</td>
+                                    <td>{item.discount}</td>
+                                    <td>{item.tax}</td>
+                                    <td>{item.total}</td>
+
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+
 
                     <br /><br />
 
-                    {/* dynamic form of items */}
-                    {inputFields.map((input, index) => {
-                        return (
-                            <div key={index}>
-                                <div className="row">
-                                    <div className="col-lg-2">
+                    {/* Total values of the table  */}
 
-                                        <label for="orderid" class="form-label "><b>ITEM NAME</b></label> <br />
-                                        <input type="text" name='orderId' class="form-control" placeholder='Billing Name' id="orderid" aria-describedby="orderid1"
-                                            value={input.orderId} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-2">
-                                        <label for="itemno" class="form-label "><b>ITEM DESCRIPTION</b></label> <br />
-                                        <input type="text" name='itemNo' class="form-control" placeholder='1111' id="Your Description" aria-describedby="itemno1"
-                                            value={input.itemNo} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="matid" class="form-label "><b>QUANTITY</b></label>
-                                        <input type="text" name='materialId' class="form-control" placeholder=' 0' id="matid" aria-describedby="matid1"
-                                            value={input.materialId} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="matid" class="form-label "><b>UNIT</b></label>
-                                        <Form.Select aria-label="Default select example">
-
-                                            <option>Month</option>
-                                            <option value="1">Jan</option>
-                                            <option value="2">Feb</option>
-                                            <option value="3">Mar</option>
-                                            <option value="4">Apr</option>
-                                            <option value="5">May</option>
-                                            <option value="6">Jun</option>
-                                            <option value="7">Jul</option>
-                                            <option value="8">Aug</option>
-                                            <option value="9">Sep</option>
-                                            <option value="10">Oct</option>
-                                            <option value="11">Nov</option>
-                                            <option value="12">Dec</option>
-                                        </Form.Select>
-
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="currqty" class="form-label "><b> PRICE</b></label>
-                                        <input type="number" name='currentqty' class="form-control" placeholder=' $0,00' id="currqty" aria-describedby="currqty1"
-                                            value={input.currentqty} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="preqty" class="form-label "><b>SUBTOTAL</b></label>
-                                        <input type="number" name='previousqty' class="form-control" placeholder='sub Total' id="preqty" aria-describedby="preqty1"
-                                            value={input.previousqty} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="qtydiff" class="form-label "><b>DISCOUNT</b></label><br />
-                                        <input type="number" name='qtydifference' class="form-control" placeholder=' 0' id="qtydiff" aria-describedby="qtydiff1"
-                                            value={input.qtydifference} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="ordercomm" class="form-label "><b>TAX %</b></label>
-                                        <input type="text" name='ordercommand' class="form-control" id="ordercomm" placeholder='10.0' aria-describedby="ordercomm1"
-                                            value={input.ordercommand} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <label for="ordercomm" class="form-label "><b>TOTAL</b></label>
-                                        <input type="text" name='ordercommand' class="form-control" id="ordercomm" placeholder='Total' aria-describedby="ordercomm1"
-                                            value={input.ordercommand} onChange={event => handleFormChange(index, event)}
-                                        />
-                                    </div>
-                                    <div className="col-lg-1">
-                                        <button onClick={() => removeFields(index)} className='btn btn-danger br'><i class="fa-solid fa-minus"></i></button>
-                                    </div>
-
-                                </div>
-
-                            </div>
-                        )
-                    })}
-                    <br />
-                    {/* button to save items  */}
-                    <div>
-                        <Button variant="primary" size="lg">
-                            Save
-                        </Button>
+                    <div className='cri2 container mt-5'>
+                        <h4 className='text-center pt-3' style={{ color: 'darkblue' }}>TOTAL</h4>
+                        <div>
+                            <Row>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-start'>Sub Total  </h5>
+                                </Col>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-end'>$ {invoiceData.tot_subTotal}</h5>
+                                </Col>
+                            </Row>
+                            <hr />
+                            <Row>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-start'>Tax   </h5>
+                                </Col>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-end'>$ {invoiceData.tot_tax} </h5>
+                                </Col>
+                            </Row>
+                            <hr />
+                            <Row>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-start'>Discount   </h5>
+                                </Col>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-end'>$ {invoiceData.tot_discount} </h5>
+                                </Col>
+                            </Row>
+                            <hr />
+                            <Row>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-start'>Total  </h5>
+                                </Col>
+                                <Col lg={6} md={6} sm={6} xs={6}>
+                                    <h5 className='text-end'>$ {invoiceData.tot_total} </h5>
+                                </Col>
+                            </Row>
+                        </div>
                     </div>
-                </div>
 
-                {/* display total and subtotal  */}
-                <div className='cri2 container mt-5'>
-                    <h4 style={{color:'darkblue'}}>TOTAL</h4>
-                    <div>
-                        <Row>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                                <h5 className='text-start'>Sub Total : </h5>
-                            </Col>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                               <h5 className='text-end'>$ 123534</h5>
-                            </Col>
-                        </Row>
-                        <hr />
-                        <Row>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                            <h5 className='text-start'>Tax Percentage : </h5>
-                            </Col>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                            <h5 className='text-end'>$ 34332 </h5>
-                            </Col>
-                        </Row>
-                        <hr />
-                        <Row>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                            <h5 className='text-start'>Total : </h5>
-                            </Col>
-                            <Col lg={6} md={6} sm={6} xs={6}>
-                            <h5 className='text-end'>$ 34567865 </h5>
-                            </Col>
-                        </Row>
-                    </div>
-                </div>
-
-                <div className='mt-5'>
-                    <div>
-                        <Link to={'/finalstep'}>
-                            <Button variant="primary" size="lg">
+                    <div className='mt-5 pb-5' style={{position:'relative',left:'45%'}}>
+                        <div>
+                            <Button variant="primary" size="lg" onClick={handleNextStep} >
                                 Next Step
                             </Button>
-                        </Link>
-                        <Link to={'/home'} style={{ textDecoration: 'none' }}>
-                            <p style={{ color: 'darkviolet' }}>Discard Invoice</p>
-                        </Link>
+
+                            <Link to={'/home'} style={{ textDecoration: 'none' }}>
+                                <p style={{ color: 'darkviolet' }}>Discard Invoice</p>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>ADD ITEMS</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="ITEM NAME">
+                                    <Form.Control name='itemName' value={formData.itemName}
+                                        onChange={(e) => setDatas(e)}
+                                        type="text" placeholder="itemName" />
+                                </FloatingLabel>
+                                {itemNameValid &&
+                                    <p className='text-danger'>Invalid itemName</p>
+                                }
+                            </>
+                        </Col>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="DESCRIPTION">
+                                    <Form.Control name='description' value={formData.description}
+                                        onChange={(e) => setDatas(e)}
+                                        type="text" placeholder="description" />
+                                </FloatingLabel>
+                                {descriptionValid &&
+                                    <p className='text-danger'>Invalid description</p>
+                                }
+                            </>
+                        </Col>
+                    </Row>
+                    <br />
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <Form.Select aria-label="Default select example" name='unit'
+                                    onChange={(e) => setDatas(e)}
+                                >
+                                    <option>Unit</option>
+                                    <option value="Jan">Jan</option>
+                                    <option value="Feb">Feb</option>
+                                    <option value="Mar">Mar</option>
+                                    <option value="Apr">Apr</option>
+                                    <option value="May">May</option>
+                                    <option value="Jun">Jun</option>
+                                    <option value="Jul">Jul</option>
+                                    <option value="Aug">Aug</option>
+                                    <option value="Sep">Sep</option>
+                                    <option value="Oct">Oct</option>
+                                    <option value="Nov">Nov</option>
+                                    <option value="Dec">Dec</option>
+                                </Form.Select>
+                            </>
+                        </Col>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="QUANTITY">
+                                    <Form.Control name='quantity' value={formData.quantity} type="text"
+                                        onChange={(e) => setDatas(e)}
+                                        placeholder="quantity" />
+                                </FloatingLabel>
+                                {quantityValid &&
+                                    <p className='text-danger'>Invalid quantity</p>
+                                }
+                            </>
+                        </Col>
+                    </Row>
+                    <br />
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="UNIT PRICE">
+                                    <Form.Control name='unitPrice' value={formData.unitPrice}
+                                        onChange={(e) => setDatas(e)}
+                                        type="text" placeholder="unitPrice" />
+                                </FloatingLabel>
+                                {unitPriceValid &&
+                                    <p className='text-danger'>Invalid unitPrice</p>
+                                }
+                            </>
+                        </Col>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="TAX PERCENTAGE">
+                                    <Form.Control name='taxPercentage'
+                                        value={formData.taxPercentage}
+                                        onChange={(e) => setDatas(e)}
+                                        type="text" placeholder="taxPercentage" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+                    </Row>
+                    <br />
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="TAX">
+                                    <Form.Control name='tax'
+                                        value={calculateTax(formData)}
+                                        onChange={(e) => setDatas(e)}
+                                        type="text" placeholder="tax" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="DISCOUNT PERCENTAGE">
+                                    <Form.Control
+                                        name='discountPercentage' onChange={(e) => setDatas(e)}
+                                        value={formData.discountPercentage}
+                                        type="text" placeholder="discountPercentage" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+                    </Row> <br />
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="DISCOUNT">
+                                    <Form.Control name='discount'
+                                        onChange={(e) => setDatas(e)}
+                                        value={calculateDiscount(formData)}
+                                        type="text"
+                                        placeholder="discount" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="SUB TOTAL">
+                                    <Form.Control name='subTotal'
+                                        onChange={(e) => setDatas(e)}
+                                        value={calculateSubTotal(formData)}
+                                        type="text"
+                                        placeholder="subTotal" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+                    </Row> <br />
+                    <Row>
+                        <Col lg={6} md={6} sm={6}>
+                            <>
+                                <FloatingLabel controlId="floatingInput" label="TOTAL">
+                                    <Form.Control name='total' onChange={(e) => setDatas(e)}
+                                        value={calculateTotal(formData)}
+                                        type="text"
+                                        placeholder="total" />
+                                </FloatingLabel>
+
+                            </>
+                        </Col>
+
+                    </Row>
+
+                </Modal.Body>
+                <Modal.Footer>
+
+                    <Button variant="primary" onClick={(e) => handleAdd(e)}  >
+                        ADD
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+            <ToastContainer />
         </div>
     )
 }
