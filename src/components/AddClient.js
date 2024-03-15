@@ -1,9 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Header from './Header'
 import Footer from './Footer'
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+
 function AddClient() {
+    const navigate=useNavigate()
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
     return (
         <div>
             <div>
@@ -34,6 +53,7 @@ function AddClient() {
                 </div>
                 <Footer></Footer>
             </div>
+            <ToastContainer/>
         </div>
     )
 }

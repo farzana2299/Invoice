@@ -1,8 +1,28 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import Button from 'react-bootstrap/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+
 function CreateInvoice() {
+const navigate=useNavigate()
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
+
     return (
         // create invoice step1 
 
@@ -51,6 +71,7 @@ function CreateInvoice() {
                     </Link>
                 </div>
             </div>
+            <ToastContainer/>
         </div>
     )
 }

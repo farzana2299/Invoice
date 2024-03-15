@@ -10,6 +10,24 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { ToastContainer, toast } from 'react-toastify';
 function Create_Invoice2() {
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
+
+
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -52,11 +70,11 @@ function Create_Invoice2() {
         tot_tax: 0,
         tot_discount: 0,
         tot_total: 0,
-        invoiceNumber:0,
-        invoiceDate:"",
-        dueDate:'',
-        paymentStatus:'',
-        paymentMethod:''
+        invoiceNumber: 0,
+        invoiceDate: "",
+        dueDate: '',
+        paymentStatus: '',
+        paymentMethod: ''
     });
 
     const [items, setItems] = useState([]);
@@ -81,13 +99,23 @@ function Create_Invoice2() {
 
     const addItem = () => {
         setItems([...items, formData]);
+       
+        const roundedFormData = {
+            ...formData,
+            subTotal: parseFloat(formData.subTotal).toFixed(2),
+            tax: parseFloat(formData.tax).toFixed(2),
+            discount: parseFloat(formData.discount).toFixed(2),
+            total: parseFloat(formData.total).toFixed(2)
+        };
+    
+        setItems([...items, roundedFormData]);
         setInvoiceData(prevState => ({
             ...prevState,
-            items: [...prevState.items, formData],
-            tot_subTotal: prevState.tot_subTotal + parseFloat(formData.subTotal),
-            tot_tax: prevState.tot_tax + parseFloat(formData.tax),
-            tot_discount: prevState.tot_discount + parseFloat(formData.discount),
-            tot_total: prevState.tot_total + parseFloat(formData.total)
+            items: [...prevState.items, roundedFormData],
+            tot_subTotal: (parseFloat(prevState.tot_subTotal) + parseFloat(roundedFormData.subTotal)).toFixed(2),
+            tot_tax: (parseFloat(prevState.tot_tax) + parseFloat(roundedFormData.tax)).toFixed(2),
+            tot_discount: (parseFloat(prevState.tot_discount) + parseFloat(roundedFormData.discount)).toFixed(2),
+            tot_total: (parseFloat(prevState.tot_total) + parseFloat(roundedFormData.total)).toFixed(2)
         }));
         setFormData(initialState);
     };
@@ -215,7 +243,7 @@ function Create_Invoice2() {
     const calculateSubTotal = (formData) => {
         return (parseFloat(formData.quantity) * parseFloat(formData.unitPrice)).toFixed(2);
     }
-    
+
     const calculateTax = (formData) => {
         return (calculateSubTotal(formData) * (parseFloat(formData.taxPercentage) / 100)).toFixed(2);
     }
@@ -228,10 +256,10 @@ function Create_Invoice2() {
         const subTotal = parseFloat(calculateSubTotal(formData));
         const tax = parseFloat(calculateTax(formData));
         const discount = parseFloat(calculateDiscount(formData));
-    
+
         return (subTotal + tax - discount).toFixed(2);
     }
-    
+
 
 
     const handleNextStep = () => {
@@ -252,6 +280,7 @@ function Create_Invoice2() {
         }
     };
 
+    
 
     return (
         <div>
@@ -313,8 +342,8 @@ function Create_Invoice2() {
                     <Row>
                         <Col lg={6} md={6} sm={12} xs={12}>
                             <>
-                                <Form.Select aria-label="Default select example" 
-                                value={invoiceData.currency} name='currency'
+                                <Form.Select aria-label="Default select example"
+                                    value={invoiceData.currency} name='currency'
                                     onChange={(e) => setDatas(e)}
                                 >
                                     <option>Currency</option>
@@ -349,6 +378,7 @@ function Create_Invoice2() {
                                 <th>DISCOUNT</th>
                                 <th>TAX </th>
                                 <th>TOTAL</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -363,7 +393,7 @@ function Create_Invoice2() {
                                     <td>{item.discount}</td>
                                     <td>{item.tax}</td>
                                     <td>{item.total}</td>
-
+                                    
                                 </tr>
                             ))}
                         </tbody>
@@ -415,7 +445,7 @@ function Create_Invoice2() {
                         </div>
                     </div>
 
-                    <div className='mt-5 pb-5' style={{position:'relative',left:'45%'}}>
+                    <div className='mt-5 pb-5'>
                         <div>
                             <Button variant="primary" size="lg" onClick={handleNextStep} >
                                 Next Step

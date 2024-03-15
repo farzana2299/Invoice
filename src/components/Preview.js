@@ -1,14 +1,104 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Col, Row } from 'react-bootstrap';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
+import { ToastContainer, toast } from 'react-toastify';
+import { addInvoiceApi } from '../service/allApi';
+import { format } from 'date-fns';
+
 
 function Preview() {
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        toast.error("Please Login First", {
+            position: "top-center",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+        });
+        navigate('/login');
+    }
+}, []);
+  const navigate=useNavigate()
   const { id } = useParams()
   const { state } = useLocation();
   const { invoiceData, formData } = state;
-  console.log("Invoice Data", invoiceData);
-  console.log("FormData", formData);
+  // console.log("Invoice Data", invoiceData);
+  // console.log("FormData", formData);
+
+  // add invoice 
+  const handleAdd = async (e) => {
+    e.preventDefault()
+
+    const { invoiceNumber, paymentStatus, paymentMethod, invoiceDate, dueDate } = formData
+    console.log(formData);
+    const { clientDetails, items, currency, tot_discount, tot_subTotal, tot_tax, tot_total } = invoiceData
+
+    if (!invoiceNumber || !paymentStatus || !paymentMethod || !invoiceDate || !dueDate ||
+      !clientDetails || !items || !currency || !tot_discount || !tot_total ||
+      !tot_subTotal || !tot_tax) 
+      {
+      toast.warn('Please fill all datas', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+      navigate('/home')
+    }
+    else {
+      const token = localStorage.getItem("token")
+      const reqHeader = {
+        "access_token": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      }
+      const reqBody = {
+        "invoiceNumber": invoiceNumber, "paymentMethod": paymentMethod, "paymentStatus": paymentStatus,
+         "invoiceDate": invoiceDate, "dueDate": dueDate, "clientDetails": clientDetails,
+        "items": items, "currency": currency,
+        "tot_discount": tot_discount, "tot_subTotal": tot_subTotal, "tot_tax": tot_tax,
+        "tot_total": tot_total
+      }
+      const result = await addInvoiceApi(id, reqBody, reqHeader)
+      console.log(result);
+      if (result.status >= 200 && result.status < 300) {
+        toast.success('Invoice Added Successfully', {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+        });
+navigate('/home')
+      }
+      else {
+        toast.error(result.response.data.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          });
+      }
+    }
+
+  }
+
 
   return (
     <div className='prev1'>
@@ -17,7 +107,7 @@ function Preview() {
         <Row style={{ position: 'relative', right: '10%', top: '10%' }}>
 
           <Col lg={4} md={4} sm={4} xs={4} style={{ position: 'relative', top: '15px' }}>
-            <Link to={`/finalstep/${id}`} style={{textDecoration:'none',color:'red'}}>
+            <Link to={`/createinvoice2/${id}`} style={{ textDecoration: 'none', color: 'red' }}>
               <i class="fa-solid fa-angle-left fa-2x"></i>
             </Link>
           </Col>
@@ -51,10 +141,10 @@ function Preview() {
             </Row>
             <Row>
               <Col lg={6} md={6} sm={6} xs={6}>
-                <h6>{formData.invoiceDate}</h6>
+                <h6>{format(new Date(formData.invoiceDate), 'yyyy-MM-dd')}</h6>
               </Col>
               <Col lg={6} md={6} sm={6} xs={6} className='text-end'>
-                <h6>{formData.dueDate}</h6>
+                <h6>{format(new Date(formData.dueDate), 'yyyy-MM-dd')}</h6>
               </Col>
             </Row>
           </Col>
@@ -125,9 +215,9 @@ function Preview() {
                 </Row>
                 <hr />
               </div>
-             
+
             ))}
-            
+
           </Col>
         </Row>
 
@@ -173,11 +263,12 @@ function Preview() {
         </Row>
       </div>
       {/* add button  */}
-      <div className='pb-5 prev3'>
-        <Button variant="primary" size="lg">
+      <div className='pb-5 '>
+        <Button variant="primary" size="lg" onClick={(e) => handleAdd(e)}>
           Save Invoice
         </Button>{' '}
       </div>
+      <ToastContainer />
     </div>
   )
 }

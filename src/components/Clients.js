@@ -4,9 +4,28 @@ import Footer from './Footer'
 import { Col, Row } from 'react-bootstrap'
 import { deleteClient, getClientDetailsApi } from '../service/allApi'
 import Button from 'react-bootstrap/Button';
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { ToastContainer, toast } from 'react-toastify';
 
 function Clients() {
+const navigate=useNavigate()
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
+
     const [clientDetails, setclientDetails] = useState({})
     const getclientDetails = async () => {
         if (localStorage.getItem("token")) {
@@ -36,7 +55,7 @@ function Clients() {
                 "access_token": `Bearer ${token}`,
                 "Content-Type": "application/json"
             };
-    
+
             try {
                 const result = await deleteClient(id, reqHeader);
                 console.log(result);
@@ -46,7 +65,7 @@ function Clients() {
             }
         }
     };
-    
+
     return (
         <div>
             <div>
@@ -54,18 +73,19 @@ function Clients() {
             </div>
             <div className='cli1'>
                 <div>
-                    {/* search bar  */}
-                    <Row>
+                    
+                    <Row className='pt-5'>
                         <Col lg={12} md={12} sm={12} xs={12}>
-                            <div className='container pt-5 pb-5' style={{ position: 'relative', left: '30%' }}>
-                                <div class="input-group">
-                                    <div class="form-outline" data-mdb-input-init>
-                                        <input type="search" id="form1" class="form-control" placeholder='Find Client' />
+                            <div>
+                                <Link to={'/addnewclient'}>
+                                    <div className='ac1 d-grid  ms-3 me-5 mb-4 pb-5' fixed="bottom" >
+                                        <Link to={'/addnewclient'}>
+                                            <Button size="lg">
+                                                <i class="fa-solid fa-user "></i>  Add New Client
+                                            </Button>
+                                        </Link>
                                     </div>
-                                    <button style={{ position: 'relative', right: '42px' }} type="button" class="btn " data-mdb-ripple-init>
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </div>
+                                </Link>
                             </div>
                         </Col>
                     </Row>
@@ -114,7 +134,7 @@ function Clients() {
             <div className='fixed-bottomm mt-5'>
                 <Footer></Footer>
             </div>
-
+<ToastContainer/>
         </div>
     )
 }

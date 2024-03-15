@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'react-bootstrap'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Form from 'react-bootstrap/Form';
@@ -7,6 +7,24 @@ import { useLocation } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 
 function FinalStep() {
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
+
     const { id } = useParams()
     const navigate = useNavigate()
     const { state } = useLocation();
@@ -156,7 +174,7 @@ function FinalStep() {
                         </Col>
                     </Row>
                 </div>
-                <div className='mt-5 pb-5' style={{position:'relative',left:'45%'}}>
+                <div className='mt-5 pb-5'>
                     <Button variant="primary" size="lg" onClick={handleNextStep}>
                         Next Step
                     </Button>

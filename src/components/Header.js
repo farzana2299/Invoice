@@ -23,7 +23,7 @@ function Header() {
       getUserDetails()
   
     }, [])
-console.log(userDetails);
+// console.log(userDetails);
     return (
         <div>
             <div className='he1'>

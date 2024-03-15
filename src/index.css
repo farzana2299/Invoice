@@ -146,7 +146,8 @@ height: 432px;
   height: 150px;
   position: relative;
   top: 65px;
-  border: 0.5px solid grey;
+  border: 1px solid grey;
+  border-radius: 8px;
 }
 .ci1{
   width:100%;
@@ -296,4 +297,20 @@ color: white;
 .prev3{
   position: relative;
   left: 45%;
+}
+.inv1{
+  width:100%;
+  height: 100%;
+  background-color:rgb(210, 215, 245) ;
+}
+.inv2{
+  height: 100%;
+  background-color: white;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+.pr1{
+  border: 1px solid black;
+  height: 100%;
+  
 }

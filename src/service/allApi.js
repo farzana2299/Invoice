@@ -32,3 +32,18 @@ export const deleteClient=async(id,header)=>{
   export const addItemApi = async (id,data, header) => {
     return await commonApi('POST', `${BASE_URL}/item/add/${id}`, data, header)
 }
+export const addInvoiceApi = async (id,data, header) => {
+    return await commonApi('POST', `${BASE_URL}/invoices/add/${id}`, data, header)
+}
+export const getAllInvoicesApi = async (header) => {
+    return await commonApi('GET', `${BASE_URL}/user/invoices`, "", header)
+}
+export const getLimitedInvoicesApi = async (header) => {
+    return await commonApi('GET', `${BASE_URL}/user/limited-invoices`, "", header)
+}
+export const getOneInvoiceApi = async (id,header) => {
+    return await commonApi('GET', `${BASE_URL}/invoice/${id}`, "", header)
+}
+export const deleteInvoiceApi=async(id,header)=>{
+    return await commonApi('DELETE',`${BASE_URL}/invoices/${id}`,"",header)
+  }

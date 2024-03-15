@@ -10,6 +10,23 @@ import Footer from './Footer';
 
 function EditClient() {
 
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            toast.error("Please Login First", {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+            });
+            navigate('/login');
+        }
+    }, []);
+
     const [clientDetails, setClientDetails] = useState({})
     const {id}=useParams()
 
